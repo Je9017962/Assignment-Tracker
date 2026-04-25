@@ -10,6 +10,87 @@ let groups = [];
 let currentGroupId = null;
 let calendarOffset = 0;
 
+// ── Toast Notifications ──────────────────────────────────────
+// Replaces all alert() calls with unobtrusive slide-in toasts.
+
+const TOAST_ICONS = {
+  success: "✅",
+  error:   "❌",
+  warning: "⚠️",
+  info:    "ℹ️",
+};
+
+/**
+ * Show a toast notification.
+ * @param {string} message
+ * @param {"success"|"error"|"warning"|"info"} [type="info"]
+ * @param {number} [duration=3500] ms before auto-dismiss (0 = no auto-dismiss)
+ */
+function toast(message, type = "info", duration = 3500) {
+  const container = document.getElementById("toast-container");
+
+  const el = document.createElement("div");
+  el.className = `toast toast-${type}`;
+  el.setAttribute("role", "status");
+  el.setAttribute("aria-live", "polite");
+
+  const icon = document.createElement("span");
+  icon.className = "toast-icon";
+  icon.textContent = TOAST_ICONS[type] || "ℹ️";
+
+  const msg = document.createElement("span");
+  msg.className = "toast-msg";
+  msg.textContent = message;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "toast-close";
+  closeBtn.setAttribute("aria-label", "Dismiss");
+  closeBtn.textContent = "✕";
+  closeBtn.onclick = () => dismissToast(el);
+
+  el.append(icon, msg, closeBtn);
+  container.appendChild(el);
+
+  if (duration > 0) {
+    setTimeout(() => dismissToast(el), duration);
+  }
+}
+
+function dismissToast(el) {
+  if (!el.parentNode) return;
+  el.classList.add("toast-out");
+  el.addEventListener("animationend", () => el.remove(), { once: true });
+}
+
+// ── Inline Confirm Dialog ────────────────────────────────────
+// Replaces all confirm() calls with a non-blocking in-app dialog.
+let _confirmResolve = null;
+
+/**
+ * Show an in-app confirm dialog. Returns a Promise<boolean>.
+ * @param {string} message
+ * @param {string} [title="Are you sure?"]
+ * @returns {Promise<boolean>}
+ */
+function confirmDialog(message, title = "Are you sure?") {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById("confirm-title").textContent = title;
+    document.getElementById("confirm-msg").textContent = message;
+    document.getElementById("confirm-overlay").classList.add("open");
+  });
+}
+
+function confirmYes() {
+  document.getElementById("confirm-overlay").classList.remove("open");
+  if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+}
+
+function confirmNo() {
+  document.getElementById("confirm-overlay").classList.remove("open");
+  if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+}
+
 // ── Utilities ────────────────────────────────────────────────
 
 /**
@@ -47,15 +128,8 @@ function showPage(page) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
 
-  const pageMap = {
-    home: "page-home",
-    groups: "page-groups",
-    workspace: "page-workspace",
-  };
-  const navMap = {
-    home: "nav-home",
-    groups: "nav-groups",
-  };
+  const pageMap = { home: "page-home", groups: "page-groups", workspace: "page-workspace" };
+  const navMap  = { home: "nav-home", groups: "nav-groups" };
 
   const pageEl = document.getElementById(pageMap[page]);
   if (pageEl) pageEl.classList.add("active");
@@ -80,15 +154,20 @@ function loadTheme() {
 function openAuth(mode) {
   authMode = mode;
   document.getElementById("auth-modal").style.display = "flex";
+  clearAuthErrors();
+  closeForgotPanel();
   updateAuthUI();
 }
 
 function closeAuth() {
   document.getElementById("auth-modal").style.display = "none";
+  clearAuthErrors();
+  closeForgotPanel();
 }
 
 function switchAuth() {
   authMode = authMode === "login" ? "signup" : "login";
+  clearAuthErrors();
   updateAuthUI();
 }
 
@@ -99,22 +178,40 @@ function updateAuthUI() {
   document.getElementById("auth-email").style.display = authMode === "signup" ? "block" : "none";
 }
 
-function handleAuth() {
-  const user = document.getElementById("auth-username").value.trim();
-  const email = document.getElementById("auth-email").value.trim();
-  const pass = document.getElementById("auth-password").value;
+/** Show an inline error message inside the auth modal. */
+function showAuthError(message) {
+  const el = document.getElementById("auth-error");
+  el.textContent = "⚠ " + message;
+  el.style.display = "flex";
+}
 
-  if (!user || !pass) return alert("Fill all required fields.");
+function clearAuthErrors() {
+  const el = document.getElementById("auth-error");
+  if (el) { el.textContent = ""; el.style.display = "none"; }
+}
+
+function handleAuth() {
+  const user  = document.getElementById("auth-username").value.trim();
+  const email = document.getElementById("auth-email").value.trim();
+  const pass  = document.getElementById("auth-password").value;
+
+  clearAuthErrors();
+
+  if (!user || !pass) {
+    showAuthError("Please fill in all required fields.");
+    return;
+  }
 
   let users = JSON.parse(localStorage.getItem("users") || "{}");
 
   if (authMode === "signup") {
-    if (!email) return alert("Email required.");
-    if (users[user]) return alert("Username already taken.");
+    if (!email)      { showAuthError("Email is required to sign up."); return; }
+    if (users[user]) { showAuthError("That username is already taken."); return; }
     users[user] = { password: pass, email };
   } else {
     if (!users[user] || users[user].password !== pass) {
-      return alert("Invalid username or password.");
+      showAuthError("Invalid username or password.");
+      return;
     }
   }
 
@@ -124,38 +221,66 @@ function handleAuth() {
   updateUserUI();
   loadAllData();
   closeAuth();
+  toast(`Welcome, ${user}!`, "success");
 }
 
-function forgotPassword() {
-  const email = prompt("Enter your email address:");
-  if (!email) return;
+// ── Forgot password — inline panel (replaces prompt()) ───────
+function openForgotPanel() {
+  document.getElementById("forgot-panel").classList.add("open");
+  document.getElementById("forgot-email-input").value   = "";
+  document.getElementById("forgot-newpass-input").value = "";
+  const errEl = document.getElementById("forgot-error");
+  errEl.textContent = ""; errEl.style.display = "none";
+}
+
+function closeForgotPanel() {
+  const panel = document.getElementById("forgot-panel");
+  if (panel) panel.classList.remove("open");
+}
+
+function submitForgotPassword() {
+  const email   = document.getElementById("forgot-email-input").value.trim();
+  const newPass = document.getElementById("forgot-newpass-input").value;
+  const errEl   = document.getElementById("forgot-error");
+  errEl.style.display = "none";
+
+  if (!email || !newPass) {
+    errEl.textContent = "⚠ Please fill in both fields.";
+    errEl.style.display = "flex";
+    return;
+  }
 
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const foundUser = Object.keys(users).find(u => users[u].email === email);
 
-  if (!foundUser) return alert("No account found with that email.");
-
-  const newPass = prompt("Enter your new password:");
-  if (!newPass) return;
+  if (!foundUser) {
+    errEl.textContent = "⚠ No account found with that email.";
+    errEl.style.display = "flex";
+    return;
+  }
 
   users[foundUser].password = newPass;
   localStorage.setItem("users", JSON.stringify(users));
-  alert("Password reset successfully.");
+  closeForgotPanel();
+  closeAuth();
+  toast("Password reset successfully. You can now log in.", "success", 5000);
 }
 
 function logout() {
+  const name = localStorage.getItem("session");
   localStorage.removeItem("session");
   updateUserUI();
   loadAllData();
   showPage("home");
+  toast(`Logged out${name ? " — see you, " + name : ""}.`, "info");
 }
 
 function updateUserUI() {
-  const session = localStorage.getItem("session");
+  const session    = localStorage.getItem("session");
   const hasSession = Boolean(session);
 
   document.getElementById("auth-area").style.display = hasSession ? "none" : "flex";
-  document.getElementById("user-area").style.display = hasSession ? "flex" : "none";
+  document.getElementById("user-area").style.display = hasSession ? "flex"  : "none";
 
   if (hasSession) {
     document.getElementById("user-name").textContent = session;
@@ -174,12 +299,13 @@ function saveAssignments() {
 }
 
 function addAssignment() {
-  const title = document.getElementById("assignment-title").value.trim();
+  const title  = document.getElementById("assignment-title").value.trim();
   const course = document.getElementById("assignment-course").value.trim();
-  const due = document.getElementById("assignment-due").value;
+  const due    = document.getElementById("assignment-due").value;
 
   if (!title) {
-    alert("Please enter an assignment title.");
+    toast("Please enter an assignment title.", "error");
+    document.getElementById("assignment-title").focus();
     return;
   }
 
@@ -188,16 +314,17 @@ function addAssignment() {
     title,
     course,
     due,
-    status: "new",  // "new" | "progress" | "completed"
-    tasks: [],       // { id, label, done }
+    status: "new",
+    tasks: [],
   });
 
-  document.getElementById("assignment-title").value = "";
+  document.getElementById("assignment-title").value  = "";
   document.getElementById("assignment-course").value = "";
-  document.getElementById("assignment-due").value = "";
+  document.getElementById("assignment-due").value    = "";
 
   saveAssignments();
   renderAssignments();
+  toast(`"${title}" added.`, "success", 2500);
 }
 
 function changeStatus(id, newStatus) {
@@ -208,20 +335,22 @@ function changeStatus(id, newStatus) {
   renderAssignments();
 }
 
-function deleteAssignment(id) {
-  if (!confirm("Delete this assignment?")) return;
+async function deleteAssignment(id) {
+  const a    = assignments.find(x => x.id === id);
+  const name = a ? `"${a.title}"` : "this assignment";
+  const ok   = await confirmDialog(`Delete ${name}? This cannot be undone.`, "Delete assignment");
+  if (!ok) return;
   assignments = assignments.filter(x => x.id !== id);
   saveAssignments();
   renderAssignments();
+  toast(`${name} deleted.`, "info", 2500);
 }
 
 function addTaskToAssignment(id, inputEl) {
   const a = assignments.find(x => x.id === id);
   if (!a) return;
-
   const label = inputEl.value.trim();
   if (!label) return;
-
   a.tasks.push({ id: Date.now().toString(), label, done: false });
   inputEl.value = "";
   saveAssignments();
@@ -255,7 +384,6 @@ function buildAssignmentCard(a) {
   const card = document.createElement("div");
   card.className = "assignment-card";
 
-  // Header: title + status select
   const header = document.createElement("div");
   header.className = "assignment-header";
 
@@ -273,10 +401,8 @@ function buildAssignmentCard(a) {
   `;
   statusSelect.value = a.status;
   statusSelect.onchange = e => changeStatus(a.id, e.target.value);
-
   header.append(titleEl, statusSelect);
 
-  // Meta: course + due date badges
   const meta = document.createElement("div");
   meta.className = "assignment-meta";
 
@@ -294,7 +420,6 @@ function buildAssignmentCard(a) {
     meta.appendChild(dueBadge);
   }
 
-  // Footer: task count + delete button
   const footer = document.createElement("div");
   footer.className = "assignment-footer";
 
@@ -314,7 +439,6 @@ function buildAssignmentCard(a) {
 
   footer.append(tasksPill, actions);
 
-  // Task list
   const tasksList = document.createElement("div");
   tasksList.className = "tasks-list";
 
@@ -347,17 +471,13 @@ function buildAssignmentCard(a) {
     });
   }
 
-  // Add-task input row
   const taskInputRow = document.createElement("div");
   taskInputRow.className = "task-input-row";
 
   const taskInput = document.createElement("input");
   taskInput.placeholder = "Add a task (e.g., outline, research, draft)...";
   taskInput.onkeydown = e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addTaskToAssignment(a.id, taskInput);
-    }
+    if (e.key === "Enter") { e.preventDefault(); addTaskToAssignment(a.id, taskInput); }
   };
 
   const taskBtn = document.createElement("button");
@@ -367,38 +487,26 @@ function buildAssignmentCard(a) {
 
   taskInputRow.append(taskInput, taskBtn);
   card.append(header, meta, footer, tasksList, taskInputRow);
-
   return card;
 }
 
 function renderAssignments() {
-  const colNew = document.getElementById("col-new");
-  const colProgress = document.getElementById("col-progress");
+  const colNew       = document.getElementById("col-new");
+  const colProgress  = document.getElementById("col-progress");
   const colCompleted = document.getElementById("col-completed");
 
-  colNew.innerHTML = "";
-  colProgress.innerHTML = "";
-  colCompleted.innerHTML = "";
-
+  colNew.innerHTML = colProgress.innerHTML = colCompleted.innerHTML = "";
   let countNew = 0, countProgress = 0, countCompleted = 0;
 
   assignments.forEach(a => {
     const card = buildAssignmentCard(a);
-
-    if (a.status === "new") {
-      colNew.appendChild(card);
-      countNew++;
-    } else if (a.status === "progress") {
-      colProgress.appendChild(card);
-      countProgress++;
-    } else {
-      colCompleted.appendChild(card);
-      countCompleted++;
-    }
+    if (a.status === "new")           { colNew.appendChild(card);       countNew++; }
+    else if (a.status === "progress") { colProgress.appendChild(card);  countProgress++; }
+    else                              { colCompleted.appendChild(card); countCompleted++; }
   });
 
-  document.getElementById("count-new").textContent = countNew;
-  document.getElementById("count-progress").textContent = countProgress;
+  document.getElementById("count-new").textContent       = countNew;
+  document.getElementById("count-progress").textContent  = countProgress;
   document.getElementById("count-completed").textContent = countCompleted;
 }
 
@@ -416,10 +524,9 @@ function saveSyllabi() {
 function uploadSyllabus() {
   const input = document.getElementById("syllabus-file");
   if (!input.files || input.files.length === 0) {
-    alert("Choose a syllabus file first.");
+    toast("Choose a syllabus file first.", "warning");
     return;
   }
-
   const file = input.files[0];
   syllabi.push({
     id: Date.now().toString(),
@@ -427,10 +534,10 @@ function uploadSyllabus() {
     size: file.size,
     uploadedAt: new Date().toISOString(),
   });
-
   input.value = "";
   saveSyllabi();
   renderSyllabi();
+  toast(`"${file.name}" uploaded.`, "success", 2500);
 }
 
 function renderSyllabi() {
@@ -465,11 +572,13 @@ function renderSyllabi() {
     const btn = document.createElement("button");
     btn.className = "btn-xs";
     btn.textContent = "Remove";
-    btn.onclick = () => {
-      if (!confirm("Remove this syllabus from your local list?")) return;
+    btn.onclick = async () => {
+      const ok = await confirmDialog(`Remove "${s.name}" from your list?`, "Remove syllabus");
+      if (!ok) return;
       syllabi = syllabi.filter(x => x.id !== s.id);
       saveSyllabi();
       renderSyllabi();
+      toast(`"${s.name}" removed.`, "info", 2500);
     };
 
     item.append(left, btn);
@@ -479,11 +588,11 @@ function renderSyllabi() {
 
 function generateCalendarFromSyllabus() {
   if (syllabi.length === 0) {
-    alert("Upload at least one syllabus first.");
+    toast("Upload at least one syllabus first.", "warning");
     return;
   }
   // TODO: implement AI-powered calendar generation
-  alert("Calendar generation coming soon!");
+  toast("Calendar generation is coming soon!", "info");
 }
 
 // ── Groups ───────────────────────────────────────────────────
@@ -500,53 +609,33 @@ function saveGroups() {
 function createGroup() {
   const name = document.getElementById("group-name").value.trim();
   if (!name) {
-    alert("Enter a group name.");
+    toast("Enter a group name.", "error");
+    document.getElementById("group-name").focus();
     return;
   }
-
   const code = "GRP-" + Math.random().toString(36).substring(2, 7).toUpperCase();
-
-  groups.push({
-    id: Date.now().toString(),
-    name,
-    code,
-    desc: "",
-    tasks: [],
-    notes: "",
-    files: [],
-  });
-
+  groups.push({ id: Date.now().toString(), name, code, desc: "", tasks: [], notes: "", files: [] });
   document.getElementById("group-name").value = "";
   saveGroups();
   renderGroups();
-  alert(`Group created! Share this code with your teammates: ${code}`);
+  toast(`Group "${name}" created — code: ${code}`, "success", 7000);
 }
 
 function joinGroup() {
   const code = document.getElementById("group-code-join").value.trim().toUpperCase();
   if (!code) {
-    alert("Enter a group code.");
+    toast("Enter a group code.", "error");
+    document.getElementById("group-code-join").focus();
     return;
   }
-
-  const existing = groups.find(g => g.code.toUpperCase() === code);
-  if (existing) {
-    alert("You already have a group with this code.");
+  if (groups.find(g => g.code.toUpperCase() === code)) {
+    toast("You already have a group with that code.", "warning");
   } else {
-    groups.push({
-      id: Date.now().toString(),
-      name: "Joined group",
-      code,
-      desc: "",
-      tasks: [],
-      notes: "",
-      files: [],
-    });
+    groups.push({ id: Date.now().toString(), name: "Joined group", code, desc: "", tasks: [], notes: "", files: [] });
     saveGroups();
     renderGroups();
-    alert(`Group added with code: ${code}`);
+    toast(`Joined group ${code}.`, "success", 2500);
   }
-
   document.getElementById("group-code-join").value = "";
 }
 
@@ -590,11 +679,13 @@ function renderGroups() {
     const btnRemove = document.createElement("button");
     btnRemove.className = "btn-xs";
     btnRemove.textContent = "Remove";
-    btnRemove.onclick = () => {
-      if (!confirm("Remove this group from your local list?")) return;
+    btnRemove.onclick = async () => {
+      const ok = await confirmDialog(`Remove "${g.name}" from your list?`, "Remove group");
+      if (!ok) return;
       groups = groups.filter(x => x.id !== g.id);
       saveGroups();
       renderGroups();
+      toast(`"${g.name}" removed.`, "info", 2500);
     };
 
     right.append(btnEnter, btnRemove);
@@ -626,24 +717,26 @@ function leaveWorkspace() {
   showPage("groups");
 }
 
-function removeCurrentGroup() {
+async function removeCurrentGroup() {
   if (!currentGroupId) return;
-  if (!confirm("Remove this group from your local list?")) return;
+  const g    = groups.find(x => x.id === currentGroupId);
+  const name = g ? `"${g.name}"` : "this group";
+  const ok   = await confirmDialog(`Remove ${name} from your local list?`, "Remove group");
+  if (!ok) return;
   groups = groups.filter(x => x.id !== currentGroupId);
   saveGroups();
   currentGroupId = null;
   showPage("groups");
   renderGroups();
+  toast(`${name} removed.`, "info", 2500);
 }
 
 // ── Workspace Tabs ───────────────────────────────────────────
 function switchWorkspaceTab(tab) {
   document.querySelectorAll(".workspace-tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".workspace-section").forEach(s => s.classList.remove("active"));
-
   document.getElementById(`tab-${tab}`).classList.add("active");
   document.getElementById(`ws-section-${tab}`).classList.add("active");
-
   if (tab === "calendar") renderCalendar();
 }
 
@@ -655,10 +748,11 @@ function addWorkspaceTask() {
 
   const title = document.getElementById("ws-task-title").value.trim();
   const owner = document.getElementById("ws-task-owner").value.trim();
-  const due = document.getElementById("ws-task-due").value;
+  const due   = document.getElementById("ws-task-due").value;
 
   if (!title) {
-    alert("Enter a task title.");
+    toast("Enter a task title.", "error");
+    document.getElementById("ws-task-title").focus();
     return;
   }
 
@@ -666,11 +760,12 @@ function addWorkspaceTask() {
 
   document.getElementById("ws-task-title").value = "";
   document.getElementById("ws-task-owner").value = "";
-  document.getElementById("ws-task-due").value = "";
+  document.getElementById("ws-task-due").value   = "";
 
   saveGroups();
   renderWorkspaceTasks();
   renderCalendar();
+  toast(`Task "${title}" added.`, "success", 2000);
 }
 
 function toggleWorkspaceTask(taskId) {
@@ -735,7 +830,7 @@ function renderWorkspaceTasks() {
 
     const parts = [];
     if (t.owner) parts.push("Owner: " + t.owner);
-    if (t.due) parts.push("Due: " + formatDateLabel(t.due));
+    if (t.due)   parts.push("Due: " + formatDateLabel(t.due));
 
     main.appendChild(titleEl);
 
@@ -756,20 +851,15 @@ function renderWorkspaceTasks() {
   });
 }
 
-// ── Workspace Notes ──────────────────────────────────────────
-// Debounced auto-save for the notes textarea
+// ── Workspace Notes (debounced auto-save) ────────────────────
 const notesDebounce = { timer: null };
 
 document.addEventListener("input", e => {
-  if (e.target.id !== "ws-notes") return;
-  if (!currentGroupId) return;
-
+  if (e.target.id !== "ws-notes" || !currentGroupId) return;
   clearTimeout(notesDebounce.timer);
   notesDebounce.timer = setTimeout(() => {
     const g = groups.find(x => x.id === currentGroupId);
-    if (!g) return;
-    g.notes = e.target.value;
-    saveGroups();
+    if (g) { g.notes = e.target.value; saveGroups(); }
   }, 400);
 });
 
@@ -781,7 +871,7 @@ function uploadWorkspaceFile() {
 
   const input = document.getElementById("ws-file-input");
   if (!input.files || input.files.length === 0) {
-    alert("Choose a file first.");
+    toast("Choose a file first.", "warning");
     return;
   }
 
@@ -796,6 +886,7 @@ function uploadWorkspaceFile() {
   input.value = "";
   saveGroups();
   renderWorkspaceFiles();
+  toast(`"${file.name}" uploaded.`, "success", 2500);
 }
 
 function deleteWorkspaceFile(fileId) {
@@ -856,18 +947,11 @@ function renderWorkspaceFiles() {
 }
 
 // ── Calendar ─────────────────────────────────────────────────
-function changeCalendarMonth(delta) {
-  calendarOffset += delta;
-  renderCalendar();
-}
-
-function resetCalendarMonth() {
-  calendarOffset = 0;
-  renderCalendar();
-}
+function changeCalendarMonth(delta) { calendarOffset += delta; renderCalendar(); }
+function resetCalendarMonth() { calendarOffset = 0; renderCalendar(); }
 
 function renderCalendar() {
-  const grid = document.getElementById("calendar-grid");
+  const grid  = document.getElementById("calendar-grid");
   const label = document.getElementById("cal-month-label");
   grid.innerHTML = "";
 
@@ -876,16 +960,15 @@ function renderCalendar() {
   base.setDate(1);
 
   const month = base.getMonth();
-  const year = base.getFullYear();
+  const year  = base.getFullYear();
 
   label.textContent = base.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 
-  const startDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
+  const startDay     = new Date(year, month, 1).getDay();
+  const daysInMonth  = new Date(year, month + 1, 0).getDate();
+  const today        = new Date();
   const todayISODate = today.toISOString().slice(0, 10);
 
-  // Day-name headers
   ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(d => {
     const h = document.createElement("div");
     h.className = "calendar-day-header";
@@ -893,12 +976,10 @@ function renderCalendar() {
     grid.appendChild(h);
   });
 
-  // Blank leading cells
   for (let i = 0; i < startDay; i++) {
     grid.appendChild(Object.assign(document.createElement("div"), { className: "calendar-cell" }));
   }
 
-  // Gather events
   const events = [];
 
   if (currentGroupId) {
@@ -921,7 +1002,6 @@ function renderCalendar() {
     }
   });
 
-  // Day cells
   for (let day = 1; day <= daysInMonth; day++) {
     const cell = document.createElement("div");
     cell.className = "calendar-cell";
@@ -934,22 +1014,17 @@ function renderCalendar() {
     const dateISO = new Date(year, month, day).toISOString().slice(0, 10);
     if (dateISO === todayISODate) dateLabel.style.textDecoration = "underline";
 
-    events
-      .filter(e => e.date === dateISO)
-      .forEach(e => {
-        const ev = document.createElement("div");
-        ev.className = "calendar-event";
-        ev.textContent = e.label;
-
-        const diffDays = Math.floor((new Date(e.date) - today) / 86400000);
-
-        if (e.done)          ev.classList.add("event-completed");
-        else if (diffDays < 0)  ev.classList.add("event-overdue");
-        else if (diffDays <= 2) ev.classList.add("event-soon");
-        else                    ev.classList.add("event-upcoming");
-
-        cell.appendChild(ev);
-      });
+    events.filter(e => e.date === dateISO).forEach(e => {
+      const ev = document.createElement("div");
+      ev.className = "calendar-event";
+      ev.textContent = e.label;
+      const diffDays = Math.floor((new Date(e.date) - today) / 86400000);
+      if (e.done)             ev.classList.add("event-completed");
+      else if (diffDays < 0)  ev.classList.add("event-overdue");
+      else if (diffDays <= 2) ev.classList.add("event-soon");
+      else                    ev.classList.add("event-upcoming");
+      cell.appendChild(ev);
+    });
 
     grid.appendChild(cell);
   }

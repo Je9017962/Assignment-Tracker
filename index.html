@@ -274,16 +274,50 @@
   <div id="auth-modal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
     <div class="auth-box">
       <h3 id="auth-title"></h3>
-      <input id="auth-username" placeholder="Username" autocomplete="username" aria-label="Username" />
-      <input id="auth-email" placeholder="Email" type="email" autocomplete="email" aria-label="Email"
-        style="display:none" />
-      <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password"
-        aria-label="Password" />
-      <button class="btn btn-p" onclick="handleAuth()">Continue</button>
+
+      <!-- Inline error (replaces alert()) -->
+      <div id="auth-error" class="field-error" style="display:none"></div>
+
+      <!-- Login / signup fields -->
+      <div id="auth-main-fields">
+        <input id="auth-username" placeholder="Username" autocomplete="username" aria-label="Username" style="margin-bottom:6px" />
+        <input id="auth-email" placeholder="Email" type="email" autocomplete="email" aria-label="Email" style="display:none;margin-bottom:6px" />
+        <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password" style="margin-bottom:6px" />
+        <button class="btn btn-p" onclick="handleAuth()" style="width:100%">Continue</button>
+      </div>
+
       <div class="auth-links">
         <span id="auth-switch" onclick="switchAuth()" role="button" tabindex="0"></span>
-        <span onclick="forgotPassword()" role="button" tabindex="0">Forgot password?</span>
+        <span onclick="openForgotPanel()" role="button" tabindex="0">Forgot password?</span>
         <span class="danger" onclick="closeAuth()" role="button" tabindex="0">Close</span>
+      </div>
+
+      <!-- Forgot-password inline panel (replaces prompt()) -->
+      <div id="forgot-panel" class="forgot-panel">
+        <hr style="border:none;border-top:1px solid var(--border);margin:4px 0" />
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text)">Reset password</div>
+        <div id="forgot-error" class="field-error" style="display:none"></div>
+        <input id="forgot-email-input" type="email" placeholder="Your email address" aria-label="Email for password reset" />
+        <input id="forgot-newpass-input" type="password" placeholder="New password" aria-label="New password" />
+        <div style="display:flex;gap:6px;margin-top:2px">
+          <button class="btn" onclick="closeForgotPanel()" style="flex:1">Cancel</button>
+          <button class="btn btn-p" onclick="submitForgotPassword()" style="flex:1">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST CONTAINER ───────────────────────────────────── -->
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ── CONFIRM DIALOG ────────────────────────────────────── -->
+  <div id="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="confirm-box">
+      <div class="confirm-title" id="confirm-title">Are you sure?</div>
+      <div class="confirm-msg" id="confirm-msg"></div>
+      <div class="confirm-actions">
+        <button class="btn" onclick="confirmNo()">Cancel</button>
+        <button class="btn btn-p" onclick="confirmYes()">Confirm</button>
       </div>
     </div>
   </div>
