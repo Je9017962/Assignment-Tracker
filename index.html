@@ -3,934 +3,19 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Assignment & Group Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --bg: #f4f5fb;
-      --surface: #ffffff;
-      --surface2: #f3f4f6;
-      --text: #111827;
-      --text2: #6b7280;
-      --border: rgba(15, 23, 42, 0.08);
-      --border2: rgba(15, 23, 42, 0.16);
-      --accent: #185fa5;
-      --accent-soft: rgba(24, 95, 165, 0.08);
-      --danger: #dc2626;
-      --radius-lg: 16px;
-      --radius-md: 10px;
-      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.12);
-    }
-
-    body.dark {
-      --bg: #020617;
-      --surface: #020617;
-      --surface2: #020617;
-      --text: #f9fafb;
-      --text2: #9ca3af;
-      --border: rgba(148, 163, 184, 0.25);
-      --border2: rgba(148, 163, 184, 0.4);
-      --accent-soft: rgba(56, 189, 248, 0.12);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #e0edff 0, var(--bg) 45%);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .app-shell {
-      max-width: 1120px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
-
-    .shell-inner {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 255, 0.96));
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-      padding: 16px 18px 20px;
-      backdrop-filter: blur(18px);
-    }
-
-    body.dark .shell-inner {
-      background: radial-gradient(circle at top left, #1f2937 0, #020617 55%);
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
-    }
-
-    /* HEADER */
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: radial-gradient(circle at 30% 20%, #ffffff 0, #dbeafe 40%, #bfdbfe 100%);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    body.dark .logo-icon {
-      background: radial-gradient(circle at 30% 20%, #1f2937 0, #0f172a 40%, #020617 100%);
-    }
-
-    .logo-icon svg {
-      width: 26px;
-      height: 26px;
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .logo-title {
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      font-size: 1.05rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .logo-pill {
-      font-size: 0.7rem;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid rgba(24, 95, 165, 0.25);
-    }
-
-    .logo-subtitle {
-      font-size: 0.8rem;
-      color: var(--text2);
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .chip {
-      font-size: 0.75rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.8);
-      color: var(--text2);
-    }
-
-    body.dark .chip {
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    .btn {
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      background: rgba(255, 255, 255, 0.95);
-      color: var(--text);
-      font-size: 0.8rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    body.dark .btn {
-      background: rgba(15, 23, 42, 0.95);
-    }
-
-    .btn-p {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: rgba(15, 23, 42, 0.3);
-    }
-
-    .btn-icon {
-      padding: 6px;
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-    }
-
-    .auth-area,
-    .user-area {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .user-name {
-      font-size: 0.8rem;
-      color: var(--text2);
-      max-width: 120px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    /* NAV */
-
-    .nav {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-    }
-
-    .nav-btn {
-      padding: 5px 10px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: var(--text2);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-btn.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-color: rgba(24, 95, 165, 0.3);
-    }
-
-    /* PAGES */
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    /* CARDS */
-
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      padding: 12px 12px 14px;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-    }
-
-    body.dark .card {
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .card-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .card-title span.icon {
-      font-size: 1rem;
-    }
-
-    .card-subtitle {
-      font-size: 0.75rem;
-      color: var(--text2);
-      margin-bottom: 6px;
-    }
-
-    .muted {
-      font-size: 0.75rem;
-      color: var(--text2);
-    }
-
-    /* LAYOUTS */
-
-    .layout-home {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
-      gap: 14px;
-    }
-
-    @media (max-width: 900px) {
-      .layout-home {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    /* ASSIGNMENTS */
-
-    .field-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-
-    .field-row input,
-    .field-row select {
-      padding: 6px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      font-size: 0.8rem;
-      min-width: 0;
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    body.dark .field-row input,
-    body.dark .field-row select {
-      background: #020617;
-    }
-
-    .field-row input:focus,
-    .field-row select:focus {
-      outline: 2px solid var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    .field-row .grow {
-      flex: 1;
-    }
-
-    .columns-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    @media (max-width: 700px) {
-      .columns-3 {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .column-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .column-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .column-count {
-      font-size: 0.7rem;
-      color: var(--text2);
-    }
-
-    .column-body {
-      background: var(--surface2);
-      border-radius: var(--radius-md);
-      border: 1px dashed var(--border);
-      padding: 6px;
-      min-height: 80px;
-    }
-
-    .assignment-card {
-      background: var(--surface);
-      border-radius: 10px;
-      border: 1px solid var(--border2);
-      padding: 6px 7px;
-      margin-bottom: 6px;
-      font-size: 0.78rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .assignment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .assignment-title {
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .assignment-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .badge {
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.8);
-      color: var(--text2);
-    }
-
-    body.dark .badge {
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    .badge-due {
-      border-color: rgba(220, 38, 38, 0.4);
-      color: #b91c1c;
-      background: rgba(254, 226, 226, 0.8);
-    }
-
-    body.dark .badge-due {
-      background: rgba(127, 29, 29, 0.7);
-      color: #fecaca;
-    }
-
-    .assignment-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .assignment-actions {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .btn-xs {
-      padding: 2px 6px;
-      font-size: 0.7rem;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      background: rgba(255, 255, 255, 0.95);
-      cursor: pointer;
-    }
-
-    body.dark .btn-xs {
-      background: rgba(15, 23, 42, 0.95);
-    }
-
-    .tasks-pill {
-      font-size: 0.7rem;
-      color: var(--text2);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .tasks-pill span {
-      padding: 1px 5px;
-      border-radius: 999px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-    }
-
-    .tasks-list {
-      margin-top: 4px;
-      border-top: 1px dashed var(--border);
-      padding-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .task-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-    }
-
-    .task-row span {
-      flex: 1;
-    }
-
-    .task-row span.done {
-      text-decoration: line-through;
-      opacity: 0.7;
-    }
-
-    .task-delete {
-      border: none;
-      background: transparent;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
-
-    .task-input-row {
-      display: flex;
-      gap: 4px;
-      margin-top: 4px;
-    }
-
-    .task-input-row input {
-      flex: 1;
-      padding: 4px 6px;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      font-size: 0.75rem;
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    .task-input-row input:focus {
-      outline: 2px solid var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    /* SYLLABUS */
-
-    .syllabus-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      max-height: 160px;
-      overflow-y: auto;
-      margin-top: 6px;
-    }
-
-    .syllabus-item {
-      padding: 5px 7px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-    }
-
-    .syllabus-name {
-      max-width: 180px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .syllabus-meta {
-      font-size: 0.7rem;
-      color: var(--text2);
-    }
-
-    /* GROUPS PAGE */
-
-    .group-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 6px;
-      max-height: 220px;
-      overflow-y: auto;
-    }
-
-    .group-item {
-      padding: 6px 8px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-
-    .group-name {
-      font-weight: 500;
-    }
-
-    .group-code {
-      font-size: 0.7rem;
-      color: var(--text2);
-    }
-
-    /* WORKSPACE PAGE */
-
-    #page-workspace {
-      padding-top: 4px;
-    }
-
-    .workspace-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .workspace-main {
-      margin-top: 6px;
-    }
-
-    .workspace-title {
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .workspace-meta {
-      font-size: 0.75rem;
-      color: var(--text2);
-    }
-
-    .workspace-tabs {
-      display: flex;
-      gap: 6px;
-      border-bottom: 1px solid var(--border);
-      margin-top: 8px;
-    }
-
-    .workspace-tab {
-      padding: 6px 10px;
-      border-radius: 999px 999px 0 0;
-      border: 1px solid transparent;
-      border-bottom: none;
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: var(--text2);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .workspace-tab.active {
-      background: var(--surface);
-      border-color: var(--border2);
-      border-bottom: 1px solid var(--surface);
-      color: var(--accent);
-    }
-
-    .workspace-tab span.icon {
-      font-size: 0.9rem;
-    }
-
-    .workspace-content {
-      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-      border: 1px solid var(--border2);
-      border-top: none;
-      background: var(--surface);
-      padding: 10px;
-      margin-top: -1px;
-      min-height: 160px;
-    }
-
-    .workspace-section {
-      display: none;
-    }
-
-    .workspace-section.active {
-      display: block;
-    }
-
-    /* WORKSPACE TASKS */
-
-    .ws-task-input-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 6px;
-      flex-wrap: wrap;
-    }
-
-    .ws-task-input-row input,
-    .ws-task-input-row select {
-      padding: 6px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      font-size: 0.8rem;
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    .ws-task-input-row input:focus,
-    .ws-task-input-row select:focus {
-      outline: 2px solid var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    .ws-task-input-row .grow {
-      flex: 1;
-      min-width: 120px;
-    }
-
-    .ws-task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      max-height: 220px;
-      overflow-y: auto;
-    }
-
-    .ws-task-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 7px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      font-size: 0.78rem;
-    }
-
-    .ws-task-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .ws-task-title.done {
-      text-decoration: line-through;
-      opacity: 0.7;
-    }
-
-    .ws-task-meta {
-      font-size: 0.7rem;
-      color: var(--text2);
-    }
-
-    /* WORKSPACE NOTES */
-
-    .ws-notes-area {
-      width: 100%;
-      min-height: 160px;
-      border-radius: 10px;
-      border: 1px solid var(--border2);
-      padding: 8px;
-      font-size: 0.8rem;
-      background: var(--surface2);
-      color: var(--text);
-      resize: vertical;
-    }
-
-    .ws-notes-area:focus {
-      outline: 2px solid var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    /* WORKSPACE FILES */
-
-    .ws-file-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 6px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .ws-file-item {
-      padding: 5px 7px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-    }
-
-    .ws-file-name {
-      max-width: 180px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ws-file-meta {
-      font-size: 0.7rem;
-      color: var(--text2);
-    }
-
-    /* CALENDAR */
-
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      font-size: 0.8rem;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 4px;
-      font-size: 0.7rem;
-    }
-
-    .calendar-day-header {
-      text-align: center;
-      font-weight: 600;
-      color: var(--text2);
-    }
-
-    .calendar-cell {
-      min-height: 60px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      padding: 3px 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .calendar-date {
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-
-    .calendar-event {
-      font-size: 0.65rem;
-      border-radius: 999px;
-      padding: 1px 4px;
-      color: #ffffff;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .event-upcoming {
-      background: #185fa5;
-    }
-
-    .event-soon {
-      background: #facc15;
-      color: #1f2937;
-    }
-
-    .event-overdue {
-      background: #dc2626;
-    }
-
-    .event-completed {
-      background: #16a34a;
-    }
-
-    /* AUTH MODAL */
-
-    .auth-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-
-    .auth-box {
-      background: var(--surface);
-      padding: 1.3rem;
-      border-radius: 16px;
-      width: 280px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border: 1px solid var(--border2);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.4);
-    }
-
-    .auth-box h3 {
-      margin: 0 0 4px;
-      font-size: 1rem;
-    }
-
-    .auth-box input {
-      padding: 7px 9px;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      font-size: 0.8rem;
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    .auth-box input:focus {
-      outline: 2px solid var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    .auth-links {
-      font-size: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      margin-top: 4px;
-    }
-
-    .auth-links span {
-      cursor: pointer;
-      color: var(--accent);
-    }
-
-    .auth-links span.danger {
-      color: var(--danger);
-    }
-  </style>
+  <title>Assignment & Group Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <div class="app-shell">
     <div class="shell-inner">
-      <!-- HEADER -->
+
+      <!-- ── HEADER ─────────────────────────────────────────── -->
       <header class="header">
         <div class="header-left">
           <div class="logo-icon" aria-hidden="true">
-            <!-- Pencil + Notebook icon -->
             <svg viewBox="0 0 48 48">
               <rect x="10" y="8" width="22" height="30" rx="4" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.6" />
               <line x1="14" y1="14" x2="28" y2="14" stroke="#9ca3af" stroke-width="1" />
@@ -944,12 +29,11 @@
           <div class="logo-text">
             <div class="logo-title">
               Assignment Tracker
-              <span class="logo-pill">Personal & Group</span>
+              <span class="logo-pill">Personal &amp; Group</span>
             </div>
             <div class="logo-subtitle">Track assignments, group projects, and deadlines in one place.</div>
           </div>
         </div>
-
 
         <div id="auth-area" class="auth-area">
           <button class="btn" onclick="openAuth('login')">Login</button>
@@ -961,1307 +45,250 @@
           <button class="btn btn-icon" title="Logout" onclick="logout()">⏏</button>
         </div>
 
-        <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+        <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">🌙</button>
+      </header>
+
+      <!-- ── NAV ────────────────────────────────────────────── -->
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-btn active" id="nav-home" onclick="showPage('home')">🏠 Home</button>
+        <button class="nav-btn" id="nav-groups" onclick="showPage('groups')">👥 Groups</button>
+      </nav>
+
+      <!-- ── PAGES ──────────────────────────────────────────── -->
+      <main>
+
+        <!-- HOME PAGE -->
+        <section id="page-home" class="page active" aria-label="Home">
+          <div class="layout-home">
+
+            <!-- Assignments column -->
+            <section class="card" aria-label="Assignments">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">
+                    <span class="icon" aria-hidden="true">📚</span>
+                    Assignments
+                  </div>
+                  <div class="card-subtitle">
+                    Personal assignments with their own task lists. Move them from
+                    <strong>New → In Progress → Completed</strong>.
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <input id="assignment-title" class="grow"
+                  placeholder="Assignment title (e.g., 'Immersive Platforms Final')"
+                  aria-label="Assignment title" />
+                <input id="assignment-course" placeholder="Course" aria-label="Course" />
+                <input id="assignment-due" type="date" aria-label="Due date" />
+                <button class="btn btn-p" onclick="addAssignment()">Add</button>
+              </div>
+
+              <div class="columns-3">
+                <div>
+                  <div class="column-header">
+                    <div class="column-title"><span aria-hidden="true">🆕</span> New</div>
+                    <span class="column-count" id="count-new">0</span>
+                  </div>
+                  <div class="column-body" id="col-new"></div>
+                </div>
+                <div>
+                  <div class="column-header">
+                    <div class="column-title"><span aria-hidden="true">⚙️</span> In Progress</div>
+                    <span class="column-count" id="count-progress">0</span>
+                  </div>
+                  <div class="column-body" id="col-progress"></div>
+                </div>
+                <div>
+                  <div class="column-header">
+                    <div class="column-title"><span aria-hidden="true">✅</span> Completed</div>
+                    <span class="column-count" id="count-completed">0</span>
+                  </div>
+                  <div class="column-body" id="col-completed"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Syllabus & Calendar column -->
+            <section class="card" aria-label="Syllabus and Calendar">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">
+                    <span class="icon" aria-hidden="true">📅</span>
+                    Syllabus &amp; Calendar
+                  </div>
+                  <div class="card-subtitle">
+                    Upload syllabi and simulate building an assignment calendar.
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <input id="syllabus-file" type="file" accept=".pdf,.doc,.docx,.txt,.ics"
+                  aria-label="Upload syllabus file" />
+              </div>
+              <div class="field-row">
+                <button class="btn btn-p" style="font-size:0.75rem" onclick="uploadSyllabus()">Upload</button>
+                <button class="btn" style="font-size:0.75rem" onclick="generateCalendarFromSyllabus()">
+                  Build Assignment Calendar
+                </button>
+              </div>
+
+              <div class="syllabus-list" id="syllabus-list"></div>
+            </section>
+
+          </div>
+        </section>
+
+        <!-- GROUPS PAGE -->
+        <section id="page-groups" class="page" aria-label="Groups">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <span class="icon" aria-hidden="true">👥</span>
+                  Groups
+                </div>
+                <div class="card-subtitle">
+                  Create or join groups for group projects. Each group has its own workspace.
+                </div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <input id="group-name" class="grow" placeholder="Create a group (e.g., 'Capstone Team A')"
+                aria-label="New group name" />
+              <button class="btn btn-p" style="font-size:0.75rem" onclick="createGroup()">Create</button>
+            </div>
+            <div class="field-row">
+              <input id="group-code-join" class="grow" placeholder="Enter group code to join"
+                aria-label="Group code to join" />
+              <button class="btn" style="font-size:0.75rem" onclick="joinGroup()">Join</button>
+            </div>
+
+            <div class="group-list" id="group-list"></div>
+            <p class="muted" style="margin-top:6px">
+              Groups are stored locally. Use the code field as a shared identifier with your teammates.
+            </p>
+          </section>
+        </section>
+
+        <!-- WORKSPACE PAGE -->
+        <section id="page-workspace" class="page" aria-label="Group workspace">
+          <section class="card">
+            <div class="workspace-header">
+              <div>
+                <div class="workspace-title">
+                  <span id="ws-group-name">Group Workspace</span>
+                  <span class="badge" id="ws-group-code"></span>
+                </div>
+                <div class="workspace-meta" id="ws-group-desc">
+                  Group tasks, notes, files, and calendar for this project.
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn" style="font-size:0.75rem" onclick="leaveWorkspace()">← Back to Groups</button>
+                <button class="btn btn-xs" style="font-size:0.75rem" onclick="removeCurrentGroup()">Remove group</button>
+              </div>
+            </div>
+
+            <div class="workspace-main">
+              <div class="workspace-tabs" role="tablist">
+                <button class="workspace-tab active" id="tab-tasks" role="tab" aria-selected="true"
+                  onclick="switchWorkspaceTab('tasks')">
+                  <span class="icon" aria-hidden="true">📝</span> Tasks
+                </button>
+                <button class="workspace-tab" id="tab-notes" role="tab" aria-selected="false"
+                  onclick="switchWorkspaceTab('notes')">
+                  <span class="icon" aria-hidden="true">📄</span> Notes
+                </button>
+                <button class="workspace-tab" id="tab-files" role="tab" aria-selected="false"
+                  onclick="switchWorkspaceTab('files')">
+                  <span class="icon" aria-hidden="true">📁</span> Files
+                </button>
+                <button class="workspace-tab" id="tab-calendar" role="tab" aria-selected="false"
+                  onclick="switchWorkspaceTab('calendar')">
+                  <span class="icon" aria-hidden="true">📅</span> Calendar
+                </button>
+              </div>
+
+              <div class="workspace-content">
+
+                <!-- Tasks section -->
+                <div class="workspace-section active" id="ws-section-tasks" role="tabpanel">
+                  <div class="ws-task-input-row">
+                    <input id="ws-task-title" class="grow" placeholder="Task title" aria-label="Task title" />
+                    <input id="ws-task-owner" placeholder="Owner" aria-label="Task owner" />
+                    <input id="ws-task-due" type="date" aria-label="Task due date" />
+                    <button class="btn btn-p" style="font-size:0.75rem" onclick="addWorkspaceTask()">Add task</button>
+                  </div>
+                  <div class="ws-task-list" id="ws-task-list"></div>
+                </div>
+
+                <!-- Notes section -->
+                <div class="workspace-section" id="ws-section-notes" role="tabpanel">
+                  <textarea class="ws-notes-area" id="ws-notes"
+                    placeholder="Shared notes for this group project..." aria-label="Group notes"></textarea>
+                </div>
+
+                <!-- Files section -->
+                <div class="workspace-section" id="ws-section-files" role="tabpanel">
+                  <div class="field-row">
+                    <input id="ws-file-input" type="file" aria-label="Upload file" />
+                    <button class="btn btn-p" style="font-size:0.75rem" onclick="uploadWorkspaceFile()">Upload</button>
+                  </div>
+                  <div class="ws-file-list" id="ws-file-list"></div>
+                </div>
+
+                <!-- Calendar section -->
+                <div class="workspace-section" id="ws-section-calendar" role="tabpanel">
+                  <div class="calendar-header">
+                    <span id="cal-month-label" aria-live="polite"></span>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn-xs" onclick="changeCalendarMonth(-1)" aria-label="Previous month">‹</button>
+                      <button class="btn-xs" onclick="resetCalendarMonth()">Today</button>
+                      <button class="btn-xs" onclick="changeCalendarMonth(1)" aria-label="Next month">›</button>
+                    </div>
+                  </div>
+                  <div class="calendar-grid" id="calendar-grid" role="grid"></div>
+                  <p class="muted" style="margin-top:4px">
+                    Colors:
+                    <span class="calendar-event event-upcoming">Upcoming</span>
+                    <span class="calendar-event event-soon">Soon</span>
+                    <span class="calendar-event event-overdue">Overdue</span>
+                    <span class="calendar-event event-completed">Completed</span>
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          </section>
+        </section>
+
+      </main>
     </div>
-    </header>
-
-    <!-- NAV -->
-    <nav class="nav">
-      <button class="nav-btn active" id="nav-home" onclick="showPage('home')">🏠 Home</button>
-      <button class="nav-btn" id="nav-groups" onclick="showPage('groups')">👥 Groups</button>
-    </nav>
-
-    <!-- PAGES -->
-    <main>
-      <!-- HOME PAGE -->
-      <section id="page-home" class="page active">
-        <div class="layout-home">
-          <!-- Assignments -->
-          <section class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">
-                  <span class="icon">📚</span>
-                  Assignments
-                </div>
-                <div class="card-subtitle">
-                  Personal assignments with their own task lists. Move them from <strong>New → In Progress →
-                    Completed</strong>.
-                </div>
-              </div>
-            </div>
-
-            <div class="field-row">
-              <input id="assignment-title" class="grow"
-                placeholder="Assignment title (e.g., 'Immersive Platforms Final')" />
-              <input id="assignment-course" placeholder="Course" />
-              <input id="assignment-due" type="date" />
-              <button class="btn btn-p" onclick="addAssignment()">Add</button>
-            </div>
-
-            <div class="columns-3">
-              <div>
-                <div class="column-header">
-                  <div class="column-title">
-                    <span>🆕</span> New
-                  </div>
-                  <span class="column-count" id="count-new">0</span>
-                </div>
-                <div class="column-body" id="col-new"></div>
-              </div>
-
-              <div>
-                <div class="column-header">
-                  <div class="column-title">
-                    <span>⚙️</span> In Progress
-                  </div>
-                  <span class="column-count" id="count-progress">0</span>
-                </div>
-                <div class="column-body" id="col-progress"></div>
-              </div>
-
-              <div>
-                <div class="column-header">
-                  <div class="column-title">
-                    <span>✅</span> Completed
-                  </div>
-                  <span class="column-count" id="count-completed">0</span>
-                </div>
-                <div class="column-body" id="col-completed"></div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Syllabus + Calendar -->
-          <section class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">
-                  <span class="icon">📅</span>
-                  Syllabus & Calendar
-                </div>
-                <div class="card-subtitle">
-                  Upload syllabi and simulate building an assignment calendar.
-                </div>
-              </div>
-            </div>
-
-            <div class="field-row">
-              <input id="syllabus-file" type="file" accept=".pdf,.doc,.docx,.txt,.ics" />
-            </div>
-            <div class="field-row">
-              <button class="btn btn-p" style="font-size:0.75rem;" onclick="uploadSyllabus()">Upload</button>
-              <button class="btn" style="font-size:0.75rem;" onclick="generateCalendarFromSyllabus()">
-                Build Assignment Calendar
-              </button>
-            </div>
-
-            <div class="syllabus-list" id="syllabus-list"></div>
-
-          </section>
-        </div>
-      </section>
-
-      <!-- GROUPS PAGE -->
-      <section id="page-groups" class="page">
-        <section class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">
-                <span class="icon">👥</span>
-                Groups
-              </div>
-              <div class="card-subtitle">
-                Create or join groups for group projects. Each group has its own workspace.
-              </div>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <input id="group-name" class="grow" placeholder="Create a group (e.g., 'Capstone Team A')" />
-            <button class="btn btn-p" style="font-size:0.75rem;" onclick="createGroup()">Create</button>
-          </div>
-          <div class="field-row">
-            <input id="group-code-join" class="grow" placeholder="Enter group code to join" />
-            <button class="btn" style="font-size:0.75rem;" onclick="joinGroup()">Join</button>
-          </div>
-
-          <div class="group-list" id="group-list"></div>
-          <p class="muted" style="margin-top:6px;">
-            Groups are stored locally. Use the code field as a shared identifier with your teammates.
-          </p>
-        </section>
-      </section>
-
-      <!-- WORKSPACE PAGE -->
-      <section id="page-workspace" class="page">
-        <section class="card">
-          <div class="workspace-header">
-            <div>
-              <div class="workspace-title">
-                <span id="ws-group-name">Group Workspace</span>
-                <span class="badge" id="ws-group-code"></span>
-              </div>
-              <div class="workspace-meta" id="ws-group-desc">
-                Group tasks, notes, files, and calendar for this project.
-              </div>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="btn" style="font-size:0.75rem;" onclick="leaveWorkspace()">← Back to Groups</button>
-              <button class="btn btn-xs" style="font-size:0.75rem;" onclick="removeCurrentGroup()">Remove
-                group</button>
-            </div>
-          </div>
-
-          <div class="workspace-main">
-            <div class="workspace-tabs">
-              <button class="workspace-tab active" id="tab-tasks" onclick="switchWorkspaceTab('tasks')">
-                <span class="icon">📝</span> Tasks
-              </button>
-              <button class="workspace-tab" id="tab-notes" onclick="switchWorkspaceTab('notes')">
-                <span class="icon">📄</span> Notes
-              </button>
-              <button class="workspace-tab" id="tab-files" onclick="switchWorkspaceTab('files')">
-                <span class="icon">📁</span> Files
-              </button>
-              <button class="workspace-tab" id="tab-calendar" onclick="switchWorkspaceTab('calendar')">
-                <span class="icon">📅</span> Calendar
-              </button>
-            </div>
-
-            <div class="workspace-content">
-              <!-- TASKS TAB -->
-              <div id="ws-section-tasks" class="workspace-section active">
-                <div class="ws-task-input-row">
-                  <input id="ws-task-title" class="grow" placeholder="Task (e.g., 'Draft outline')" />
-                  <input id="ws-task-owner" placeholder="Owner (optional)" />
-                  <input id="ws-task-due" type="date" />
-                  <button class="btn btn-p" style="font-size:0.75rem;" onclick="addWorkspaceTask()">Add</button>
-                </div>
-                <div class="ws-task-list" id="ws-task-list"></div>
-                <p class="muted" style="margin-top:4px;">
-                  Tasks here are specific to this group. Due dates will appear on the calendar with status colors.
-                </p>
-              </div>
-
-              <!-- NOTES TAB -->
-              <div id="ws-section-notes" class="workspace-section">
-                <textarea id="ws-notes" class="ws-notes-area" placeholder="Shared notes for this group..."></textarea>
-                <p class="muted" style="margin-top:4px;">
-                  Notes auto-save as you type. This is local to your browser.
-                </p>
-              </div>
-
-              <!-- FILES TAB -->
-              <div id="ws-section-files" class="workspace-section">
-                <div class="field-row">
-                  <input id="ws-file-input" type="file" />
-                  <button class="btn btn-p" style="font-size:0.75rem;" onclick="uploadWorkspaceFile()">Upload</button>
-                </div>
-                <div class="ws-file-list" id="ws-file-list"></div>
-
-              </div>
-
-              <!-- CALENDAR TAB -->
-              <div id="ws-section-calendar" class="workspace-section">
-                <div class="calendar-header">
-                  <div>
-                    <strong id="cal-month-label"></strong>
-                  </div>
-                  <div style="display:flex;gap:4px;">
-                    <button class="btn-xs" onclick="changeCalendarMonth(-1)">‹</button>
-                    <button class="btn-xs" onclick="resetCalendarMonth()">Today</button>
-                    <button class="btn-xs" onclick="changeCalendarMonth(1)">›</button>
-                  </div>
-                </div>
-                <div class="calendar-grid" id="calendar-grid"></div>
-                <p class="muted" style="margin-top:4px;">
-                  Colors: <span class="calendar-event event-upcoming">Upcoming</span>
-                  <span class="calendar-event event-soon">Soon</span>
-                  <span class="calendar-event event-overdue">Overdue</span>
-                  <span class="calendar-event event-completed">Completed</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </section>
-    </main>
-  </div>
   </div>
 
-  <!-- AUTH MODAL -->
-  <div id="auth-modal" class="auth-modal">
+  <!-- ── AUTH MODAL ─────────────────────────────────────────── -->
+  <div id="auth-modal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
     <div class="auth-box">
       <h3 id="auth-title"></h3>
-      <input id="auth-username" placeholder="Username" />
-      <input id="auth-email" placeholder="Email" />
-      <input id="auth-password" type="password" placeholder="Password" />
+      <input id="auth-username" placeholder="Username" autocomplete="username" aria-label="Username" />
+      <input id="auth-email" placeholder="Email" type="email" autocomplete="email" aria-label="Email"
+        style="display:none" />
+      <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password"
+        aria-label="Password" />
       <button class="btn btn-p" onclick="handleAuth()">Continue</button>
       <div class="auth-links">
-        <span id="auth-switch" onclick="switchAuth()"></span>
-        <span onclick="forgotPassword()">Forgot password?</span>
-        <span class="danger" onclick="closeAuth()">Close</span>
+        <span id="auth-switch" onclick="switchAuth()" role="button" tabindex="0"></span>
+        <span onclick="forgotPassword()" role="button" tabindex="0">Forgot password?</span>
+        <span class="danger" onclick="closeAuth()" role="button" tabindex="0">Close</span>
       </div>
     </div>
   </div>
 
-  <script>
-    // -----------------------
-    // GLOBAL STATE
-    // -----------------------
-    let authMode = "login";
-    let assignments = [];
-    let syllabi = [];
-    let groups = [];
-    let currentGroupId = null;
-
-    let calendarOffset = 0; // months from current
-
-    // -----------------------
-    // UTIL
-    // -----------------------
-    function getSessionKey(prefix) {
-      const session = localStorage.getItem("session") || "guest";
-      return prefix + "_" + session;
-    }
-
-    function formatDateLabel(dateStr) {
-      if (!dateStr) return "";
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-    }
-
-    function todayISO() {
-      const d = new Date();
-      return d.toISOString().slice(0, 10);
-    }
-
-    // -----------------------
-    // NAVIGATION
-    // -----------------------
-    function showPage(page) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-
-      if (page === "home") {
-        document.getElementById("page-home").classList.add("active");
-        document.getElementById("nav-home").classList.add("active");
-      } else if (page === "groups") {
-        document.getElementById("page-groups").classList.add("active");
-        document.getElementById("nav-groups").classList.add("active");
-      } else if (page === "workspace") {
-        document.getElementById("page-workspace").classList.add("active");
-      }
-    }
-
-    // -----------------------
-    // AUTH
-    // -----------------------
-    function openAuth(mode) {
-      authMode = mode;
-      document.getElementById("auth-modal").style.display = "flex";
-      updateAuthUI();
-    }
-
-    function closeAuth() {
-      document.getElementById("auth-modal").style.display = "none";
-    }
-
-    function switchAuth() {
-      authMode = authMode === "login" ? "signup" : "login";
-      updateAuthUI();
-    }
-
-    function updateAuthUI() {
-      document.getElementById("auth-title").textContent =
-        authMode === "login" ? "Login" : "Sign up";
-      document.getElementById("auth-switch").textContent =
-        authMode === "login" ? "Create account" : "Already have one? Login";
-      document.getElementById("auth-email").style.display =
-        authMode === "signup" ? "block" : "none";
-    }
-
-    function handleAuth() {
-      const user = document.getElementById("auth-username").value.trim();
-      const email = document.getElementById("auth-email").value.trim();
-      const pass = document.getElementById("auth-password").value;
-
-      if (!user || !pass) return alert("Fill all required fields");
-
-      let users = JSON.parse(localStorage.getItem("users") || "{}");
-
-      if (authMode === "signup") {
-        if (!email) return alert("Email required");
-        if (users[user]) return alert("User exists");
-        users[user] = { password: pass, email };
-      } else {
-        if (!users[user] || users[user].password !== pass) {
-          return alert("Invalid login");
-        }
-      }
-
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("session", user);
-
-      updateUserUI();
-      loadAllData();
-      closeAuth();
-    }
-
-    function forgotPassword() {
-      const email = prompt("Enter your email");
-      if (!email) return;
-
-      let users = JSON.parse(localStorage.getItem("users") || "{}");
-      let foundUser = null;
-
-      for (let u in users) {
-        if (users[u].email === email) {
-          foundUser = u;
-          break;
-        }
-      }
-
-      if (!foundUser) return alert("No account found");
-
-      const newPass = prompt("Enter new password");
-      if (!newPass) return;
-
-      users[foundUser].password = newPass;
-      localStorage.setItem("users", JSON.stringify(users));
-
-      alert("Password reset successful");
-    }
-
-    function logout() {
-      localStorage.removeItem("session");
-      updateUserUI();
-      loadAllData();
-      showPage("home");
-    }
-
-    function updateUserUI() {
-      const session = localStorage.getItem("session");
-
-      if (session) {
-        document.getElementById("auth-area").style.display = "none";
-        document.getElementById("user-area").style.display = "flex";
-        document.getElementById("user-name").textContent = session;
-      } else {
-        document.getElementById("auth-area").style.display = "flex";
-        document.getElementById("user-area").style.display = "none";
-      }
-    }
-
-    // -----------------------
-    // THEME
-    // -----------------------
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      localStorage.setItem(
-        "theme",
-        document.body.classList.contains("dark") ? "dark" : "light"
-      );
-    }
-
-    function loadTheme() {
-      if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
-      }
-    }
-
-    // -----------------------
-    // ASSIGNMENTS + TASKS
-    // -----------------------
-    function loadAssignments() {
-      const key = getSessionKey("assignments");
-      const raw = localStorage.getItem(key);
-      assignments = raw ? JSON.parse(raw) : [];
-      renderAssignments();
-    }
-
-    function saveAssignments() {
-      const key = getSessionKey("assignments");
-      localStorage.setItem(key, JSON.stringify(assignments));
-    }
-
-    function addAssignment() {
-      const title = document.getElementById("assignment-title").value.trim();
-      const course = document.getElementById("assignment-course").value.trim();
-      const due = document.getElementById("assignment-due").value;
-
-      if (!title) {
-        alert("Please enter an assignment title.");
-        return;
-      }
-
-      const id = Date.now().toString();
-
-      assignments.push({
-        id,
-        title,
-        course,
-        due,
-        status: "new", // new | progress | completed
-        tasks: [] // { id, label, done }
-      });
-
-      document.getElementById("assignment-title").value = "";
-      document.getElementById("assignment-course").value = "";
-      document.getElementById("assignment-due").value = "";
-
-      saveAssignments();
-      renderAssignments();
-    }
-
-    function changeStatus(id, newStatus) {
-      const a = assignments.find(x => x.id === id);
-      if (!a) return;
-      a.status = newStatus;
-      saveAssignments();
-      renderAssignments();
-    }
-
-    function deleteAssignment(id) {
-      if (!confirm("Delete this assignment?")) return;
-      assignments = assignments.filter(x => x.id !== id);
-      saveAssignments();
-      renderAssignments();
-    }
-
-    function addTaskToAssignment(id, inputEl) {
-      const a = assignments.find(x => x.id === id);
-      if (!a) return;
-
-      const label = inputEl.value.trim();
-      if (!label) return;
-
-      a.tasks.push({
-        id: Date.now().toString(),
-        label,
-        done: false
-      });
-
-      inputEl.value = "";
-      saveAssignments();
-      renderAssignments();
-    }
-
-    function toggleAssignmentTask(id, taskId) {
-      const a = assignments.find(x => x.id === id);
-      if (!a) return;
-      const t = a.tasks.find(x => x.id === taskId);
-      if (!t) return;
-      t.done = !t.done;
-      saveAssignments();
-      renderAssignments();
-    }
-
-    function deleteAssignmentTask(id, taskId) {
-      const a = assignments.find(x => x.id === id);
-      if (!a) return;
-      a.tasks = a.tasks.filter(x => x.id !== taskId);
-      saveAssignments();
-      renderAssignments();
-    }
-
-    function renderAssignments() {
-      const colNew = document.getElementById("col-new");
-      const colProgress = document.getElementById("col-progress");
-      const colCompleted = document.getElementById("col-completed");
-
-      colNew.innerHTML = "";
-      colProgress.innerHTML = "";
-      colCompleted.innerHTML = "";
-
-      let countNew = 0,
-        countProgress = 0,
-        countCompleted = 0;
-
-      assignments.forEach(a => {
-        const card = document.createElement("div");
-        card.className = "assignment-card";
-
-        const header = document.createElement("div");
-        header.className = "assignment-header";
-
-        const title = document.createElement("div");
-        title.className = "assignment-title";
-        title.textContent = a.title || "Untitled assignment";
-
-        const statusSelect = document.createElement("select");
-        statusSelect.className = "pill-select";
-        statusSelect.style.fontSize = "0.75rem";
-        statusSelect.innerHTML = `
-          <option value="new">New</option>
-          <option value="progress">In Progress</option>
-          <option value="completed">Completed</option>
-        `;
-        statusSelect.value = a.status;
-        statusSelect.onchange = e => changeStatus(a.id, e.target.value);
-
-        header.appendChild(title);
-        header.appendChild(statusSelect);
-
-        const meta = document.createElement("div");
-        meta.className = "assignment-meta";
-
-        if (a.course) {
-          const courseBadge = document.createElement("span");
-          courseBadge.className = "badge";
-          courseBadge.textContent = a.course;
-          meta.appendChild(courseBadge);
-        }
-
-        if (a.due) {
-          const dueBadge = document.createElement("span");
-          dueBadge.className = "badge badge-due";
-          dueBadge.textContent = "Due " + formatDateLabel(a.due);
-          meta.appendChild(dueBadge);
-        }
-
-        const footer = document.createElement("div");
-        footer.className = "assignment-footer";
-
-        const tasksInfo = document.createElement("div");
-        tasksInfo.className = "tasks-pill";
-
-        const doneCount = a.tasks.filter(t => t.done).length;
-        const totalCount = a.tasks.length;
-
-        tasksInfo.innerHTML = `Tasks <span>${doneCount}/${totalCount}</span>`;
-
-        const actions = document.createElement("div");
-        actions.className = "assignment-actions";
-
-        const btnDelete = document.createElement("button");
-        btnDelete.className = "btn-xs";
-        btnDelete.textContent = "Delete";
-        btnDelete.onclick = () => deleteAssignment(a.id);
-
-        actions.appendChild(btnDelete);
-
-        footer.appendChild(tasksInfo);
-        footer.appendChild(actions);
-
-        const tasksList = document.createElement("div");
-        tasksList.className = "tasks-list";
-
-        if (a.tasks.length === 0) {
-          const empty = document.createElement("div");
-          empty.className = "muted";
-          empty.textContent = "No tasks yet. Break this assignment into steps.";
-          tasksList.appendChild(empty);
-        } else {
-          a.tasks.forEach(t => {
-            const row = document.createElement("div");
-            row.className = "task-row";
-
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.checked = t.done;
-            cb.onchange = () => toggleAssignmentTask(a.id, t.id);
-
-            const label = document.createElement("span");
-            label.textContent = t.label;
-            if (t.done) label.classList.add("done");
-
-            const del = document.createElement("button");
-            del.className = "task-delete";
-            del.textContent = "✕";
-            del.onclick = () => deleteAssignmentTask(a.id, t.id);
-
-            row.appendChild(cb);
-            row.appendChild(label);
-            row.appendChild(del);
-            tasksList.appendChild(row);
-          });
-        }
-
-        const taskInputRow = document.createElement("div");
-        taskInputRow.className = "task-input-row";
-
-        const taskInput = document.createElement("input");
-        taskInput.placeholder = "Add a task (e.g., outline, research, draft)...";
-        taskInput.onkeydown = e => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            addTaskToAssignment(a.id, taskInput);
-          }
-        };
-
-        const taskBtn = document.createElement("button");
-        taskBtn.className = "btn-xs";
-        taskBtn.textContent = "+ Task";
-        taskBtn.onclick = () => addTaskToAssignment(a.id, taskInput);
-
-        taskInputRow.appendChild(taskInput);
-        taskInputRow.appendChild(taskBtn);
-
-        card.appendChild(header);
-        card.appendChild(meta);
-        card.appendChild(footer);
-        card.appendChild(tasksList);
-        card.appendChild(taskInputRow);
-
-        if (a.status === "new") {
-          colNew.appendChild(card);
-          countNew++;
-        } else if (a.status === "progress") {
-          colProgress.appendChild(card);
-          countProgress++;
-        } else {
-          colCompleted.appendChild(card);
-          countCompleted++;
-        }
-      });
-
-      document.getElementById("count-new").textContent = countNew;
-      document.getElementById("count-progress").textContent = countProgress;
-      document.getElementById("count-completed").textContent = countCompleted;
-    }
-
-    // -----------------------
-    // SYLLABUS
-    // -----------------------
-    function loadSyllabi() {
-      const key = getSessionKey("syllabi");
-      const raw = localStorage.getItem(key);
-      syllabi = raw ? JSON.parse(raw) : [];
-      renderSyllabi();
-    }
-
-    function saveSyllabi() {
-      const key = getSessionKey("syllabi");
-      localStorage.setItem(key, JSON.stringify(syllabi));
-    }
-
-    function uploadSyllabus() {
-      const input = document.getElementById("syllabus-file");
-      if (!input.files || input.files.length === 0) {
-        alert("Choose a syllabus file first.");
-        return;
-      }
-
-      const file = input.files[0];
-      syllabi.push({
-        id: Date.now().toString(),
-        name: file.name,
-        size: file.size,
-        uploadedAt: new Date().toISOString()
-      });
-
-      input.value = "";
-      saveSyllabi();
-      renderSyllabi();
-    }
-
-    function renderSyllabi() {
-      const list = document.getElementById("syllabus-list");
-      list.innerHTML = "";
-
-      if (syllabi.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "muted";
-        empty.textContent = "No syllabus uploaded yet.";
-        list.appendChild(empty);
-        return;
-      }
-
-      syllabi.forEach(s => {
-        const item = document.createElement("div");
-        item.className = "syllabus-item";
-
-        const left = document.createElement("div");
-        left.style.display = "flex";
-        left.style.flexDirection = "column";
-        left.style.gap = "2px";
-
-        const name = document.createElement("div");
-        name.className = "syllabus-name";
-        name.textContent = s.name;
-
-        const meta = document.createElement("div");
-        meta.className = "syllabus-meta";
-        const kb = Math.round(s.size / 1024);
-        meta.textContent = kb + " KB";
-
-        left.appendChild(name);
-        left.appendChild(meta);
-
-        const btn = document.createElement("button");
-        btn.className = "btn-xs";
-        btn.textContent = "Remove";
-        btn.onclick = () => {
-          if (!confirm("Remove this syllabus from your local list?")) return;
-          syllabi = syllabi.filter(x => x.id !== s.id);
-          saveSyllabi();
-          renderSyllabi();
-        };
-
-        item.appendChild(left);
-        item.appendChild(btn);
-        list.appendChild(item);
-      });
-    }
-
-    function generateCalendarFromSyllabus() {
-      if (syllabi.length === 0) {
-        alert("Upload at least one syllabus first.");
-        return;
-      }
-
-
-    }
-
-    // -----------------------
-    // GROUPS
-    // -----------------------
-    function loadGroups() {
-      const key = getSessionKey("groups");
-      const raw = localStorage.getItem(key);
-      groups = raw ? JSON.parse(raw) : [];
-      renderGroups();
-    }
-
-    function saveGroups() {
-      const key = getSessionKey("groups");
-      localStorage.setItem(key, JSON.stringify(groups));
-    }
-
-    function createGroup() {
-      const name = document.getElementById("group-name").value.trim();
-      if (!name) {
-        alert("Enter a group name.");
-        return;
-      }
-
-      const code = "GRP-" + Math.random().toString(36).substring(2, 7).toUpperCase();
-
-      groups.push({
-        id: Date.now().toString(),
-        name,
-        code,
-        desc: "",
-        tasks: [],
-        notes: "",
-        files: []
-      });
-
-      document.getElementById("group-name").value = "";
-      saveGroups();
-      renderGroups();
-
-      alert("Group created. Share this code with your teammates: " + code);
-    }
-
-    function joinGroup() {
-      const code = document.getElementById("group-code-join").value.trim();
-      if (!code) {
-        alert("Enter a group code.");
-        return;
-      }
-
-      const existing = groups.find(g => g.code.toUpperCase() === code.toUpperCase());
-      if (existing) {
-        alert("You already have a group with this code in your local list.");
-      } else {
-        groups.push({
-          id: Date.now().toString(),
-          name: "Joined group",
-          code: code.toUpperCase(),
-          desc: "",
-          tasks: [],
-          notes: "",
-          files: []
-        });
-        saveGroups();
-        renderGroups();
-        alert("Group added locally with code: " + code.toUpperCase());
-      }
-
-      document.getElementById("group-code-join").value = "";
-    }
-
-    function renderGroups() {
-      const list = document.getElementById("group-list");
-      list.innerHTML = "";
-
-      if (groups.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "muted";
-        empty.textContent = "No groups yet. Create one or join with a code.";
-        list.appendChild(empty);
-        return;
-      }
-
-      groups.forEach(g => {
-        const item = document.createElement("div");
-        item.className = "group-item";
-
-        const left = document.createElement("div");
-        left.style.display = "flex";
-        left.style.flexDirection = "column";
-        left.style.gap = "2px";
-
-        const name = document.createElement("div");
-        name.className = "group-name";
-        name.textContent = g.name;
-
-        const code = document.createElement("div");
-        code.className = "group-code";
-        code.textContent = g.code;
-
-        left.appendChild(name);
-        left.appendChild(code);
-
-        const right = document.createElement("div");
-        right.style.display = "flex";
-        right.style.gap = "4px";
-
-        const btnEnter = document.createElement("button");
-        btnEnter.className = "btn-xs";
-        btnEnter.textContent = "Enter workspace";
-        btnEnter.onclick = () => openWorkspace(g.id);
-
-        const btnRemove = document.createElement("button");
-        btnRemove.className = "btn-xs";
-        btnRemove.textContent = "Remove";
-        btnRemove.onclick = () => {
-          if (!confirm("Remove this group from your local list?")) return;
-          groups = groups.filter(x => x.id !== g.id);
-          saveGroups();
-          renderGroups();
-        };
-
-        right.appendChild(btnEnter);
-        right.appendChild(btnRemove);
-
-        item.appendChild(left);
-        item.appendChild(right);
-        list.appendChild(item);
-      });
-    }
-
-    function openWorkspace(groupId) {
-      currentGroupId = groupId;
-      const g = groups.find(x => x.id === groupId);
-      if (!g) return;
-
-      document.getElementById("ws-group-name").textContent = g.name;
-      document.getElementById("ws-group-code").textContent = g.code || "";
-      document.getElementById("ws-group-desc").textContent =
-        g.desc || "Group tasks, notes, files, and calendar for this project.";
-
-      document.getElementById("ws-notes").value = g.notes || "";
-
-      renderWorkspaceTasks();
-      renderWorkspaceFiles();
-      renderCalendar();
-
-      showPage("workspace");
-    }
-
-    function leaveWorkspace() {
-      currentGroupId = null;
-      showPage("groups");
-    }
-
-    function removeCurrentGroup() {
-      if (!currentGroupId) return;
-      if (!confirm("Remove this group from your local list?")) return;
-      groups = groups.filter(x => x.id !== currentGroupId);
-      saveGroups();
-      currentGroupId = null;
-      showPage("groups");
-      renderGroups();
-    }
-
-    // -----------------------
-    // WORKSPACE TABS
-    // -----------------------
-    function switchWorkspaceTab(tab) {
-      document.querySelectorAll(".workspace-tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".workspace-section").forEach(s => s.classList.remove("active"));
-
-      document.getElementById("tab-" + tab).classList.add("active");
-      document.getElementById("ws-section-" + tab).classList.add("active");
-
-      if (tab === "calendar") {
-        renderCalendar();
-      }
-    }
-
-    // -----------------------
-    // WORKSPACE TASKS
-    // -----------------------
-    function addWorkspaceTask() {
-      if (!currentGroupId) return;
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g) return;
-
-      const title = document.getElementById("ws-task-title").value.trim();
-      const owner = document.getElementById("ws-task-owner").value.trim();
-      const due = document.getElementById("ws-task-due").value;
-
-      if (!title) {
-        alert("Enter a task title.");
-        return;
-      }
-
-      g.tasks.push({
-        id: Date.now().toString(),
-        title,
-        owner,
-        due,
-        done: false
-      });
-
-      document.getElementById("ws-task-title").value = "";
-      document.getElementById("ws-task-owner").value = "";
-      document.getElementById("ws-task-due").value = "";
-
-      saveGroups();
-      renderWorkspaceTasks();
-      renderCalendar();
-    }
-
-    function toggleWorkspaceTask(taskId) {
-      if (!currentGroupId) return;
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g) return;
-      const t = g.tasks.find(x => x.id === taskId);
-      if (!t) return;
-      t.done = !t.done;
-      saveGroups();
-      renderWorkspaceTasks();
-      renderCalendar();
-    }
-
-    function deleteWorkspaceTask(taskId) {
-      if (!currentGroupId) return;
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g) return;
-      g.tasks = g.tasks.filter(x => x.id !== taskId);
-      saveGroups();
-      renderWorkspaceTasks();
-      renderCalendar();
-    }
-
-    function renderWorkspaceTasks() {
-      const list = document.getElementById("ws-task-list");
-      list.innerHTML = "";
-
-      if (!currentGroupId) {
-        const empty = document.createElement("div");
-        empty.className = "muted";
-        empty.textContent = "No group selected.";
-        list.appendChild(empty);
-        return;
-      }
-
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g || g.tasks.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "muted";
-        empty.textContent = "No tasks yet. Add tasks for this group project.";
-        list.appendChild(empty);
-        return;
-      }
-
-      g.tasks.forEach(t => {
-        const item = document.createElement("div");
-        item.className = "ws-task-item";
-
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = t.done;
-        cb.onchange = () => toggleWorkspaceTask(t.id);
-
-        const main = document.createElement("div");
-        main.className = "ws-task-main";
-
-        const title = document.createElement("div");
-        title.className = "ws-task-title";
-        title.textContent = t.title;
-        if (t.done) title.classList.add("done");
-
-        const meta = document.createElement("div");
-        meta.className = "ws-task-meta";
-        const parts = [];
-        if (t.owner) parts.push("Owner: " + t.owner);
-        if (t.due) parts.push("Due: " + formatDateLabel(t.due));
-        meta.textContent = parts.join(" • ");
-
-        main.appendChild(title);
-        if (parts.length) main.appendChild(meta);
-
-        const del = document.createElement("button");
-        del.className = "btn-xs";
-        del.textContent = "Delete";
-        del.onclick = () => deleteWorkspaceTask(t.id);
-
-        item.appendChild(cb);
-        item.appendChild(main);
-        item.appendChild(del);
-
-        list.appendChild(item);
-      });
-    }
-
-    // -----------------------
-    // WORKSPACE NOTES
-    // -----------------------
-    const notesDebounce = { timer: null };
-
-    document.addEventListener("input", e => {
-      if (e.target.id === "ws-notes") {
-        if (!currentGroupId) return;
-        if (notesDebounce.timer) clearTimeout(notesDebounce.timer);
-        notesDebounce.timer = setTimeout(() => {
-          const g = groups.find(x => x.id === currentGroupId);
-          if (!g) return;
-          g.notes = e.target.value;
-          saveGroups();
-        }, 400);
-      }
-    });
-
-    // -----------------------
-    // WORKSPACE FILES
-    // -----------------------
-    function uploadWorkspaceFile() {
-      if (!currentGroupId) return;
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g) return;
-
-      const input = document.getElementById("ws-file-input");
-      if (!input.files || input.files.length === 0) {
-        alert("Choose a file first.");
-        return;
-      }
-
-      const file = input.files[0];
-      g.files.push({
-        id: Date.now().toString(),
-        name: file.name,
-        size: file.size,
-        uploadedAt: new Date().toISOString()
-      });
-
-      input.value = "";
-      saveGroups();
-      renderWorkspaceFiles();
-    }
-
-    function deleteWorkspaceFile(fileId) {
-      if (!currentGroupId) return;
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g) return;
-      g.files = g.files.filter(x => x.id !== fileId);
-      saveGroups();
-      renderWorkspaceFiles();
-    }
-
-    function renderWorkspaceFiles() {
-      const list = document.getElementById("ws-file-list");
-      list.innerHTML = "";
-
-      if (!currentGroupId) {
-        const empty = document.createElement("div");
-        empty.className = "muted";
-        empty.textContent = "No group selected.";
-        list.appendChild(empty);
-        return;
-      }
-
-      const g = groups.find(x => x.id === currentGroupId);
-      if (!g || g.files.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "muted";
-        empty.textContent = "No files yet. Upload files for this group.";
-        list.appendChild(empty);
-        return;
-      }
-
-      g.files.forEach(f => {
-        const item = document.createElement("div");
-        item.className = "ws-file-item";
-
-        const left = document.createElement("div");
-        left.style.display = "flex";
-        left.style.flexDirection = "column";
-        left.style.gap = "2px";
-
-        const name = document.createElement("div");
-        name.className = "ws-file-name";
-        name.textContent = f.name;
-
-        const meta = document.createElement("div");
-        meta.className = "ws-file-meta";
-        const kb = Math.round(f.size / 1024);
-        meta.textContent = kb + " KB";
-
-        left.appendChild(name);
-        left.appendChild(meta);
-
-        const btn = document.createElement("button");
-        btn.className = "btn-xs";
-        btn.textContent = "Remove";
-        btn.onclick = () => deleteWorkspaceFile(f.id);
-
-        item.appendChild(left);
-        item.appendChild(btn);
-        list.appendChild(item);
-      });
-    }
-
-    // -----------------------
-    // CALENDAR
-    // -----------------------
-    function changeCalendarMonth(delta) {
-      calendarOffset += delta;
-      renderCalendar();
-    }
-
-    function resetCalendarMonth() {
-      calendarOffset = 0;
-      renderCalendar();
-    }
-
-    function renderCalendar() {
-      const grid = document.getElementById("calendar-grid");
-      const label = document.getElementById("cal-month-label");
-      grid.innerHTML = "";
-
-      const base = new Date();
-      base.setMonth(base.getMonth() + calendarOffset);
-      base.setDate(1);
-
-      const month = base.getMonth();
-      const year = base.getFullYear();
-
-      label.textContent = base.toLocaleDateString(undefined, {
-        month: "long",
-        year: "numeric"
-      });
-
-      const firstDay = new Date(year, month, 1);
-      const startDay = firstDay.getDay(); // 0-6
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      dayNames.forEach(d => {
-        const h = document.createElement("div");
-        h.className = "calendar-day-header";
-        h.textContent = d;
-        grid.appendChild(h);
-      });
-
-      for (let i = 0; i < startDay; i++) {
-        const cell = document.createElement("div");
-        cell.className = "calendar-cell";
-        grid.appendChild(cell);
-      }
-
-      const today = new Date();
-      const todayISODate = today.toISOString().slice(0, 10);
-
-      const events = [];
-
-      if (currentGroupId) {
-        const g = groups.find(x => x.id === currentGroupId);
-        if (g) {
-          g.tasks.forEach(t => {
-            if (!t.due) return;
-            const d = new Date(t.due);
-            if (d.getMonth() === month && d.getFullYear() === year) {
-              events.push({
-                date: t.due,
-                label: t.title,
-                done: t.done
-              });
-            }
-          });
-        }
-      }
-
-      syllabi.forEach(s => {
-        const d = new Date(s.uploadedAt);
-        if (d.getMonth() === month && d.getFullYear() === year) {
-          const iso = d.toISOString().slice(0, 10);
-          events.push({
-            date: iso,
-            label: "Syllabus: " + s.name,
-            done: false
-          });
-        }
-      });
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement("div");
-        cell.className = "calendar-cell";
-
-        const dateLabel = document.createElement("div");
-        dateLabel.className = "calendar-date";
-        dateLabel.textContent = day;
-        cell.appendChild(dateLabel);
-
-        const dateISO = new Date(year, month, day).toISOString().slice(0, 10);
-
-        events
-          .filter(e => e.date === dateISO)
-          .forEach(e => {
-            const ev = document.createElement("div");
-            ev.className = "calendar-event";
-
-            const eventDate = new Date(e.date);
-            const diffDays = Math.floor(
-              (eventDate - today) / (1000 * 60 * 60 * 24)
-            );
-
-            if (e.done) {
-              ev.classList.add("event-completed");
-            } else if (diffDays < 0) {
-              ev.classList.add("event-overdue");
-            } else if (diffDays <= 2) {
-              ev.classList.add("event-soon");
-            } else {
-              ev.classList.add("event-upcoming");
-            }
-
-            ev.textContent = e.label;
-            cell.appendChild(ev);
-          });
-
-        if (dateISO === todayISODate) {
-          dateLabel.style.textDecoration = "underline";
-        }
-
-        grid.appendChild(cell);
-      }
-    }
-
-    // -----------------------
-    // LOAD ALL
-    // -----------------------
-    function loadAllData() {
-      loadAssignments();
-      loadSyllabi();
-      loadGroups();
-      if (currentGroupId) {
-        openWorkspace(currentGroupId);
-      }
-    }
-
-    // INIT
-    loadTheme();
-    updateUserUI();
-    loadAllData();
-    updateAuthUI();
-  </script>
+  <script src="app.js"></script>
 </body>
 
 </html>
